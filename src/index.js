@@ -12,7 +12,8 @@ const Status = {
   LOADING: 'loading',
   LOADED: 'loaded',
   FAILED: 'failed',
-  UNSUPPORTED: 'unsupported'
+  UNSUPPORTED: 'unsupported',
+  UNMOUNTING: 'unmounting'
 };
 
 const getRequestsByUrl = {};
@@ -189,6 +190,10 @@ export default class InlineSVG extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    this.state.status = Status.UNMOUNTING;
+  }
+
   fail(error) {
     const status = error.isUnsupportedBrowserError ? Status.UNSUPPORTED : Status.FAILED;
 
@@ -202,6 +207,9 @@ export default class InlineSVG extends React.Component {
   handleLoad(err, res) {
     if (err) {
       this.fail(err);
+      return;
+    }
+    if (this.state.status === Status.UNMOUNTING) {
       return;
     }
     this.setState({
